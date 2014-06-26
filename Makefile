@@ -1,4 +1,4 @@
-# Makefile for building Vagrant (libvirt) base image "boxes" for Puppet-Gluster
+# Makefile for building Vagrant base image "boxes" for vagrant-libvirt
 # Copyright (C) 2010-2013+ James Shubin
 # Written by James Shubin <james@shubin.ca>
 #

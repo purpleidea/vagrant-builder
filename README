@@ -1,3 +1,7 @@
+This is the builder/ project that used to live inside puppet-gluster.
+
+This is an elegant method for making base images for vagrant-libvirt.
+
 This Makefile builds vagrant base image ("boxes") for vagrant-libvirt.
 A short article describing the process can be found here:
 
