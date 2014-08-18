@@ -24,10 +24,12 @@
 # TODO: build base image for virt-builder from iso instead of using templates
 
 # virt-builder os-version
-VERSION = rhel-7.0
+VERSION = fedora-20 
 BOX = $(VERSION).box
-SIZE = 12
-OUTPUT := $(shell echo /tmp/goern/builder/$(VERSION))
+SIZE = 16
+OUTPUT := $(shell echo /var/tmp/builder/$(VERSION))
+SERVER = 'user@host.example.org'
+REMOTE_PATH = 'public_html/vagrant'
 
 all: box
 
@@ -61,14 +63,21 @@ $(OUTPUT)/builder.img: files/*
 	--output $(OUTPUT)/builder.img \
 	--format qcow2 \
 	--size $(SIZE)G \
-	--install rsync,nfs-utils,sudo,openssh-server,openssh-clients,file,telnet,yum-utilsc \
+	--install rsync,nfs-utils,sudo,openssh-server,openssh-clients \
+	--install screen,vim-enhanced,git,wget,file,man,tree,nmap,tcpdump,htop,lsof,telnet,mlocate,bind-utils,koan,iftop,yum-utils,nc \
 	--root-password file:files/password \
+	--upload files/epel-release-7-0.2.noarch.rpm:/root/epel-release-7-0.2.noarch.rpm \
+	--upload files/puppetlabs-release-el-7.noarch.rpm:/root/puppetlabs-release-el-7.noarch.rpm \
+	--run-command 'yum install -y /root/epel-release-7-0.2.noarch.rpm && rm -f /root/epel-release-7-0.2.noarch.rpm' \
+	--run-command 'yum install -y bash-completion moreutils' \
+	--run-command 'yum install -y /root/puppetlabs-release-el-7.noarch.rpm && rm -f /root/puppetlabs-release-el-7.noarch.rpm' \
+	--run-command 'yum install -y puppet' \
 	--run-command 'yum update -y' \
-	--run-command 'touch /.autorelabel' \
 	--run files/user.sh \
 	--run files/ssh.sh \
 	--run files/network.sh \
-	--run files/cleanup.sh
+	--run files/cleanup.sh \
+	--run-command 'touch /.autorelabel'
 
 	# boot machine once to run the selinux relabelling, see:
 	# https://www.redhat.com/archives/libguestfs/2014-January/msg00183.html
@@ -118,4 +127,21 @@ $(OUTPUT)/SHA256SUMS.asc: $(OUTPUT)/SHA256SUMS
 	# the --yes forces an overwrite of the SHA256SUMS.asc if necessary
 	gpg2 --yes --clearsign $(OUTPUT)/SHA256SUMS
 
+#
+#	upload
+#
+# upload to public server
+# NOTE: user downloads while file uploads are in progress don't cause problems!
+upload: $(OUTPUT)/$(BOX) $(OUTPUT)/SHA256SUMS $(OUTPUT)/SHA256SUMS.asc
+	if [ "`cat $(OUTPUT)/SHA256SUMS`" != "`ssh $(SERVER) 'cd $(REMOTE_PATH)/$(VERSION)/ && sha256sum $(BOX)'`" ]; then \
+		echo Running upload...; \
+		scp -p $(OUTPUT)/{$(BOX),SHA256SUMS{,.asc}} $(SERVER):$(REMOTE_PATH)/$(VERSION)/; \
+	fi
+# this method works too, but always hits the server on every make call
+#upload:
+#ifeq ($(shell cat $(OUTPUT)/SHA256SUMS), $(shell ssh $(SERVER) 'cd $(REMOTE_PATH)/ && sha256sum $(BOX)'))
+#	@echo true
+#else
+#	@echo false
+#endif
 
