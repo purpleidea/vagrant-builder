@@ -5,7 +5,7 @@
 # eg: ./versions/centos-6.sh upload
 # to make your own base image and upload it to your own server somewhere.
 
-VERSION='rhel-7.0'		# pick from the output of virt-builder -l
+VERSION='centos-7.0'		# pick from the output of virt-builder -l
 SERVER=''			# connect over ssh (add your public key first)
 REMOTE_PATH=''			# make a $VERSION directory in this dir
 
