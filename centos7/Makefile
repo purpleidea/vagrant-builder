@@ -24,9 +24,9 @@
 # TODO: build base image for virt-builder from iso instead of using templates
 
 # virt-builder os-version
-VERSION = fedora-20 
+VERSION = centos-7.0
 BOX = $(VERSION).box
-SIZE = 16
+SIZE = 40
 OUTPUT := $(shell echo /var/tmp/builder/$(VERSION))
 SERVER = 'user@host.example.org'
 REMOTE_PATH = 'public_html/vagrant'

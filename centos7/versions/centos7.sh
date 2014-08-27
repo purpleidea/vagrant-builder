@@ -2,7 +2,7 @@
 
 # to use this script, from its parent dir, run: ./versions/<script>.sh <target>
 # you'll want to edit the below bash variables to match your use cases :)
-# eg: ./versions/centos-6.sh upload
+# eg: ./versions/centos-7.sh upload
 # to make your own base image and upload it to your own server somewhere.
 
 VERSION='centos-7.0'		# pick from the output of virt-builder -l
