@@ -18,7 +18,7 @@
 # NOTE: if you change any of the values in this file (such as SIZE or --install
 # arguments) make won't notice the change, you'll have to manually clean first.
 
-.PHONY: all builder convert box local upload clean
+.PHONY: all docker builder convert box local upload clean
 .SILENT:
 
 # TODO: build base image for virt-builder from iso instead of using templates
@@ -41,12 +41,18 @@ REMOTE_PATH = 'public_html/vagrant'
 EXTRAS =
 # list of docker images to pull in
 IMAGES =
+# list of container output paths
+PREFIX = $(OUTPUT)/
+SUFFIX = .docker
+# $(VARIABLE:OLD_PREFIX%OLD_SUFFIX=NEW_PREFIX%NEW_SUFFIX)
+DOCKER = $(IMAGES:%=$(PREFIX)%$(SUFFIX))
 
 all: box
 
 #
 #	aliases
 #
+docker: $(DOCKER)
 builder: $(OUTPUT)/builder.img
 convert: $(OUTPUT)/box.img
 box: $(OUTPUT)/$(BOX)
@@ -59,7 +65,17 @@ local: $(OUTPUT)/SHA256SUMS.asc
 clean:
 	@echo Running clean...
 	# TODO: technically, the 'true' should check if all the files are rm-ed
-	rm $(OUTPUT)/{{builder,box}.img,metadata.json,$(BOX),SHA256SUMS{,.asc}} || true
+	rm $(DOCKER) $(OUTPUT)/{docker.tar,{builder,box}.img,metadata.json,$(BOX),SHA256SUMS{,.asc}} || true
+
+#
+#	docker
+#
+$(DOCKER): %:
+	# get name of the container by removing prefix/suffix
+	d='$@'; d=$${d#$(PREFIX)}; d=$${d%$(SUFFIX)}; docker pull "$$d" && docker save "$$d" > $@
+
+$(OUTPUT)/docker.tar: $(DOCKER)
+	cd $(PREFIX) && tar -cf $(OUTPUT)/docker.tar -C $(OUTPUT) *$(SUFFIX) || ls *$(SUFFIX) || tar -cf $(OUTPUT)/docker.tar --files-from=/dev/null
 
 #
 #	virt-builder
@@ -67,7 +83,7 @@ clean:
 # build image with virt-builder
 # NOTE: some of this system prep is based on the vagrant-libvirt scripts
 # TODO: install: ruby ruby-devel make gcc rubygems ?
-$(OUTPUT)/builder.img: files/*
+$(OUTPUT)/builder.img: files/* $(OUTPUT)/docker.tar
 	@echo Running virt-builder...
 	[ -d $(OUTPUT) ] || mkdir -p $(OUTPUT)/	# ensure path is present first!
 	virt-builder $(VERSION) \
@@ -84,6 +100,9 @@ $(OUTPUT)/builder.img: files/*
 	--run-command 'yum install -y /root/puppetlabs-release-el-7.noarch.rpm && rm -f /root/puppetlabs-release-el-7.noarch.rpm' \
 	--run-command 'yum install -y puppet' \
 	--run-command 'yum install -y docker' \
+	--run-command 'systemctl enable docker' \
+	--upload $(OUTPUT)/docker.tar:/root/ \
+	--run-command 'mkdir /root/docker/ && tar -C /root/docker/ -xf /root/docker.tar && rm /root/docker.tar' \
 	--upload files/yum.sh:/root/yum.sh \
 	--run-command '/root/yum.sh install $(EXTRAS) && rm /root/yum.sh' \
 	--run-command 'yum update -y' \
