@@ -84,6 +84,10 @@ $(OUTPUT)/builder.img: files/*
 	--run-command 'yum install -y /root/puppetlabs-release-el-7.noarch.rpm && rm -f /root/puppetlabs-release-el-7.noarch.rpm' \
 	--run-command 'yum install -y puppet' \
 	--run-command 'yum install -y docker' \
+	--run-command 'systemctl enable docker' \
+	--upload files/docker.sh:/root/docker.sh \
+	--run-command '/usr/bin/docker -d -H fd:// &' \
+	--run-command '/root/dock.sh pull $(IMAGES) && rm /root/docker.sh' \
 	--upload files/yum.sh:/root/yum.sh \
 	--run-command '/root/yum.sh install $(EXTRAS) && rm /root/yum.sh' \
 	--run-command 'yum update -y' \
