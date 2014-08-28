@@ -25,11 +25,22 @@
 
 # virt-builder os-version
 VERSION = centos-7.0
-BOX = $(VERSION).box
+POSTFIX =
+ifeq ($(POSTFIX), )
+	FULLNAME = $(VERSION)
+else
+	FULLNAME = $(VERSION)-$(POSTFIX)
+endif
+BOX = $(FULLNAME).box
 SIZE = 40
-OUTPUT := $(shell echo /var/tmp/builder/$(VERSION))
+# the user might want to generate a personal set of base images
+OUTPUT := $(shell echo ~/tmp/builder/$(FULLNAME))
 SERVER = 'user@host.example.org'
 REMOTE_PATH = 'public_html/vagrant'
+# list of extra packages to install
+EXTRAS =
+# list of docker images to pull in
+IMAGES =
 
 all: box
 
@@ -63,8 +74,8 @@ $(OUTPUT)/builder.img: files/*
 	--output $(OUTPUT)/builder.img \
 	--format qcow2 \
 	--size $(SIZE)G \
-	--install rsync,nfs-utils,sudo,openssh-server,openssh-clients \
-	--install screen,vim-enhanced,git,wget,file,man,tree,nmap,tcpdump,htop,lsof,telnet,mlocate,bind-utils,koan,iftop,yum-utils,nc \
+	--install rsync,nfs-utils,sudo,openssh-server,openssh-clients,screen \
+	--install vim-enhanced,git,wget,file,man,tree,nmap,tcpdump,htop,lsof,telnet,mlocate,bind-utils,koan,iftop,yum-utils,nc \
 	--root-password file:files/password \
 	--upload files/epel-release-7-0.2.noarch.rpm:/root/epel-release-7-0.2.noarch.rpm \
 	--upload files/puppetlabs-release-el-7.noarch.rpm:/root/puppetlabs-release-el-7.noarch.rpm \
@@ -72,6 +83,9 @@ $(OUTPUT)/builder.img: files/*
 	--run-command 'yum install -y bash-completion moreutils' \
 	--run-command 'yum install -y /root/puppetlabs-release-el-7.noarch.rpm && rm -f /root/puppetlabs-release-el-7.noarch.rpm' \
 	--run-command 'yum install -y puppet' \
+	--run-command 'yum install -y docker' \
+	--upload files/yum.sh:/root/yum.sh \
+	--run-command '/root/yum.sh install $(EXTRAS) && rm /root/yum.sh' \
 	--run-command 'yum update -y' \
 	--run files/user.sh \
 	--run files/ssh.sh \
@@ -133,9 +147,9 @@ $(OUTPUT)/SHA256SUMS.asc: $(OUTPUT)/SHA256SUMS
 # upload to public server
 # NOTE: user downloads while file uploads are in progress don't cause problems!
 upload: $(OUTPUT)/$(BOX) $(OUTPUT)/SHA256SUMS $(OUTPUT)/SHA256SUMS.asc
-	if [ "`cat $(OUTPUT)/SHA256SUMS`" != "`ssh $(SERVER) 'cd $(REMOTE_PATH)/$(VERSION)/ && sha256sum $(BOX)'`" ]; then \
+	if [ "`cat $(OUTPUT)/SHA256SUMS`" != "`ssh $(SERVER) 'cd $(REMOTE_PATH)/$(FULLNAME)/ && sha256sum $(BOX)'`" ]; then \
 		echo Running upload...; \
-		scp -p $(OUTPUT)/{$(BOX),SHA256SUMS{,.asc}} $(SERVER):$(REMOTE_PATH)/$(VERSION)/; \
+		scp -p $(OUTPUT)/{$(BOX),SHA256SUMS{,.asc}} $(SERVER):$(REMOTE_PATH)/$(FULLNAME)/; \
 	fi
 # this method works too, but always hits the server on every make call
 #upload:

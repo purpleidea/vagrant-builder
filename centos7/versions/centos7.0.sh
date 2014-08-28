@@ -6,8 +6,9 @@
 # to make your own base image and upload it to your own server somewhere.
 
 VERSION='centos-7.0'		# pick from the output of virt-builder -l
+POSTFIX=''
 SERVER=''			# connect over ssh (add your public key first)
 REMOTE_PATH=''			# make a $VERSION directory in this dir
-
-make VERSION=$VERSION SERVER=$SERVER REMOTE_PATH=$REMOTE_PATH $@
+EXTRAS=''
+make VERSION=$VERSION POSTFIX=$POSTFIX SERVER=$SERVER REMOTE_PATH=$REMOTE_PATH EXTRAS="$EXTRAS" $@
 
