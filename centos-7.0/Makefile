@@ -91,7 +91,7 @@ $(OUTPUT)/builder.img: files/* $(OUTPUT)/docker.tar
 	--format qcow2 \
 	--size $(SIZE)G \
 	--install rsync,nfs-utils,sudo,openssh-server,openssh-clients,screen \
-	--install vim-enhanced,git,wget,file,man,tree,nmap,tcpdump,htop,lsof,telnet,mlocate,bind-utils,koan,iftop,yum-utils,nc \
+	--install vim-enhanced,git,wget,file,man,tree,nmap,tcpdump,htop,lsof,telnet,mlocate,bind-utils,koan,iftop,yum-utils,nc,psmisc \
 	--root-password file:files/password \
 	--upload files/epel-release-7-0.2.noarch.rpm:/root/epel-release-7-0.2.noarch.rpm \
 	--upload files/puppetlabs-release-el-7.noarch.rpm:/root/puppetlabs-release-el-7.noarch.rpm \
