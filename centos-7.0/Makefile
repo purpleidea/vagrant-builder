@@ -110,8 +110,8 @@ $(OUTPUT)/builder.img: files/* $(OUTPUT)/docker.tar $(REPOS_PRESENT)
 	--run-command 'yum install -y bash-completion moreutils' \
 	--run-command 'yum install -y /root/puppetlabs-release-el-7.noarch.rpm && rm -f /root/puppetlabs-release-el-7.noarch.rpm' \
 	--run-command 'yum install -y puppet' \
-	--run-command 'yum install -y docker' \
-	--run-command 'systemctl enable docker' \
+	--run-command 'yum install -y docker || true' \
+	--run-command 'systemctl enable docker || true' \
 	--upload $(OUTPUT)/docker.tar:/root/ \
 	--run-command 'mkdir /root/docker/ && tar -C /root/docker/ -xf /root/docker.tar && rm /root/docker.tar' \
 	--upload files/yum.sh:/root/yum.sh \
