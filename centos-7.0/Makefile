@@ -37,6 +37,8 @@ SIZE = 40
 OUTPUT := $(shell echo ~/tmp/builder/$(FULLNAME))
 SERVER = 'user@host.example.org'
 REMOTE_PATH = 'public_html/vagrant'
+# list of extra repos (from repos/ folder) to install
+REPOS =
 # list of extra packages to install
 EXTRAS =
 # list of docker images to pull in
@@ -46,6 +48,15 @@ PREFIX = $(OUTPUT)/
 SUFFIX = .docker
 # $(VARIABLE:OLD_PREFIX%OLD_SUFFIX=NEW_PREFIX%NEW_SUFFIX)
 DOCKER = $(IMAGES:%=$(PREFIX)%$(SUFFIX))
+# find out which repo files actually exist
+REPOS_PATTERN = $(REPOS:%=repos/%.repo)
+ifeq ($(REPOS_PATTERN), )
+	REPOS_PRESENT =
+else
+	REPOS_PRESENT := $(shell ls $(REPOS_PATTERN) 2> /dev/null)
+endif
+# build command line args for virt-builder
+REPOS_COMMAND = $(REPOS_PRESENT:%=--upload %:/etc/yum.repos.d/)
 
 all: box
 
@@ -83,10 +94,10 @@ $(OUTPUT)/docker.tar: $(DOCKER)
 # build image with virt-builder
 # NOTE: some of this system prep is based on the vagrant-libvirt scripts
 # TODO: install: ruby ruby-devel make gcc rubygems ?
-$(OUTPUT)/builder.img: files/* $(OUTPUT)/docker.tar
+$(OUTPUT)/builder.img: files/* $(OUTPUT)/docker.tar $(REPOS_PRESENT)
 	@echo Running virt-builder...
 	[ -d $(OUTPUT) ] || mkdir -p $(OUTPUT)/	# ensure path is present first!
-	virt-builder $(VERSION) \
+	virt-builder $(VERSION) $(REPOS_COMMAND) \
 	--output $(OUTPUT)/builder.img \
 	--format qcow2 \
 	--size $(SIZE)G \
