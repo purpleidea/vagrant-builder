@@ -6,7 +6,7 @@ if [ "$1" = 'install' ]; then
 	if [ x"$@" = 'x' ]; then
 		exit
 	fi
-	yum install "$@"
+	yum -y install "$@"
 	e=$?
 	if [ $e -ne 0 ]; then
 		exit $e
