@@ -37,6 +37,8 @@ SIZE = 40
 OUTPUT := $(shell echo ~/tmp/builder/$(FULLNAME))
 SERVER = 'user@host.example.org'
 REMOTE_PATH = 'public_html/vagrant'
+# list of keys (from keys/ folder) to install
+KEYS =
 # list of extra repos (from repos/ folder) to install
 REPOS =
 # list of extra packages to install
@@ -48,6 +50,15 @@ PREFIX = $(OUTPUT)/
 SUFFIX = .docker
 # $(VARIABLE:OLD_PREFIX%OLD_SUFFIX=NEW_PREFIX%NEW_SUFFIX)
 DOCKER = $(IMAGES:%=$(PREFIX)%$(SUFFIX))
+# find out which key files actually exist
+KEYS_PATTERN = $(KEYS:%=keys/RPM-GPG-KEY-%)
+ifeq ($(KEYS_PATTERN), )
+	KEYS_PRESENT =
+else
+	KEYS_PRESENT := $(shell ls $(KEYS_PATTERN) 2> /dev/null)
+endif
+# build command line args for virt-builder
+KEYS_COMMAND = $(KEYS_PRESENT:%=--upload %:/etc/pki/rpm-gpg/)
 # find out which repo files actually exist
 REPOS_PATTERN = $(REPOS:%=repos/%.repo)
 ifeq ($(REPOS_PATTERN), )
@@ -94,22 +105,18 @@ $(OUTPUT)/docker.tar: $(DOCKER)
 # build image with virt-builder
 # NOTE: some of this system prep is based on the vagrant-libvirt scripts
 # TODO: install: ruby ruby-devel make gcc rubygems ?
-$(OUTPUT)/builder.img: files/* $(OUTPUT)/docker.tar $(REPOS_PRESENT)
+$(OUTPUT)/builder.img: files/* $(OUTPUT)/docker.tar $(REPOS_PRESENT) $(KEYS_PRESENT)
 	@echo Running virt-builder...
 	[ -d $(OUTPUT) ] || mkdir -p $(OUTPUT)/	# ensure path is present first!
-	virt-builder $(VERSION) $(REPOS_COMMAND) \
+	virt-builder $(VERSION) $(REPOS_COMMAND) $(KEYS_COMMAND) \
 	--output $(OUTPUT)/builder.img \
 	--format qcow2 \
 	--size $(SIZE)G \
 	--install rsync,nfs-utils,sudo,openssh-server,openssh-clients,screen \
 	--install vim-enhanced,git,wget,file,man,tree,nmap,tcpdump,htop,lsof,telnet,mlocate,bind-utils,koan,iftop,yum-utils,nc,psmisc \
 	--root-password file:files/password \
-	--upload files/epel-release-7-0.2.noarch.rpm:/root/epel-release-7-0.2.noarch.rpm \
-	--upload files/puppetlabs-release-el-7.noarch.rpm:/root/puppetlabs-release-el-7.noarch.rpm \
-	--run-command 'yum install -y /root/epel-release-7-0.2.noarch.rpm && rm -f /root/epel-release-7-0.2.noarch.rpm' \
 	--run-command 'yum install -y bash-completion moreutils' \
-	--run-command 'yum install -y /root/puppetlabs-release-el-7.noarch.rpm && rm -f /root/puppetlabs-release-el-7.noarch.rpm' \
-	--run-command 'yum install -y puppet' \
+	--run-command 'yum install -y puppet || true' \
 	--run-command 'yum install -y docker || true' \
 	--run-command 'systemctl enable docker || true' \
 	--upload $(OUTPUT)/docker.tar:/root/ \

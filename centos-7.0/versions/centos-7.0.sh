@@ -9,8 +9,9 @@ VERSION='centos-7.0'		# pick from the output of virt-builder -l
 POSTFIX=''
 SERVER=''			# connect over ssh (add your public key first)
 REMOTE_PATH=''			# make a $VERSION directory in this dir
-REPOS=''			# add extra repos to the base image
+KEYS='EPEL-7 puppetlabs'	# add extra keys to the base image
+REPOS='epel7 epel7-testing el7-puppet'	# add extra repos to the base image
 IMAGES=''			# list of docker images to include
 EXTRAS=''			# list of extra packages to include
-make VERSION=$VERSION POSTFIX=$POSTFIX SERVER=$SERVER REMOTE_PATH=$REMOTE_PATH REPOS="$REPOS" IMAGES="$IMAGES" EXTRAS="$EXTRAS" $@
+make VERSION=$VERSION POSTFIX=$POSTFIX SERVER=$SERVER REMOTE_PATH=$REMOTE_PATH KEYS="$KEYS" REPOS="$REPOS" IMAGES="$IMAGES" EXTRAS="$EXTRAS" $@
 
