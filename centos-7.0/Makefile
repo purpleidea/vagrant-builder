@@ -42,7 +42,7 @@ KEYS =
 # list of extra repos (from repos/ folder) to install
 REPOS =
 # list of extra packages to install
-EXTRAS =
+PACKAGES =
 # list of docker images to pull in
 IMAGES =
 # list of container output paths
@@ -113,16 +113,14 @@ $(OUTPUT)/builder.img: files/* $(OUTPUT)/docker.tar $(REPOS_PRESENT) $(KEYS_PRES
 	--format qcow2 \
 	--size $(SIZE)G \
 	--install rsync,nfs-utils,sudo,openssh-server,openssh-clients,screen \
-	--install vim-enhanced,git,wget,file,man,tree,nmap,tcpdump,htop,lsof,telnet,mlocate,bind-utils,koan,iftop,yum-utils,nc,psmisc \
 	--root-password file:files/password \
-	--run-command 'yum install -y bash-completion moreutils' \
 	--run-command 'yum install -y puppet || true' \
 	--run-command 'yum install -y docker || true' \
 	--run-command 'systemctl enable docker || true' \
 	--upload $(OUTPUT)/docker.tar:/root/ \
 	--run-command 'mkdir /root/docker/ && tar -C /root/docker/ -xf /root/docker.tar && rm /root/docker.tar' \
 	--upload files/yum.sh:/root/yum.sh \
-	--run-command '/root/yum.sh install $(EXTRAS) && rm /root/yum.sh' \
+	--run-command '/root/yum.sh install $(PACKAGES) && rm /root/yum.sh' \
 	--run-command 'yum update -y' \
 	--run files/user.sh \
 	--run files/ssh.sh \
