@@ -33,6 +33,9 @@ else
 endif
 BOX = $(FULLNAME).box
 SIZE = 40
+ifeq ($(SIZE), )
+	SIZE = 40
+endif
 # the user might want to generate a personal set of base images
 OUTPUT := $(shell echo ~/tmp/builder/$(FULLNAME))
 SERVER = 'user@host.example.org'
