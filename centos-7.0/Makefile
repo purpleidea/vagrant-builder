@@ -115,8 +115,9 @@ $(OUTPUT)/builder.img: files/* $(OUTPUT)/docker.tar $(REPOS_PRESENT) $(KEYS_PRES
 	--output $(OUTPUT)/builder.img \
 	--format qcow2 \
 	--size $(SIZE)G \
-	--install rsync,nfs-utils,sudo,openssh-server,openssh-clients,screen \
+	--install rsync,nfs-utils,sudo,openssh-server,openssh-clients,screen,tar \
 	--root-password file:files/password \
+	--run-command 'yum erase -y vim-minimal || true' \
 	--run-command 'yum install -y puppet || true' \
 	--run-command 'yum install -y docker || true' \
 	--run-command 'systemctl enable docker || true' \

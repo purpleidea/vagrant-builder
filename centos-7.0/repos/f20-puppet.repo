@@ -1,0 +1,42 @@
+[puppetlabs-products]
+name=Puppet Labs Products Fedora 20 - $basearch
+baseurl=http://yum.puppetlabs.com/fedora/f20/products/$basearch
+gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-puppetlabs
+enabled=1
+gpgcheck=1
+
+[puppetlabs-deps]
+name=Puppet Labs Dependencies Fedora 20 - $basearch
+baseurl=http://yum.puppetlabs.com/fedora/f20/dependencies/$basearch
+gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-puppetlabs
+enabled=1
+gpgcheck=1
+
+[puppetlabs-devel]
+name=Puppet Labs Devel Fedora 20 - $basearch
+baseurl=http://yum.puppetlabs.com/fedora/f20/devel/$basearch
+gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-puppetlabs
+enabled=0
+gpgcheck=1
+
+[puppetlabs-products-source]
+name=Puppet Labs Products Fedora 20 - $basearch - Source
+baseurl=http://yum.puppetlabs.com/fedora/f20/products/SRPMS
+gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-puppetlabs
+failovermethod=priority
+enabled=0
+gpgcheck=1
+
+[puppetlabs-deps-source]
+name=Puppet Labs Source Dependencies Fedora 20 - $basearch - Source
+baseurl=http://yum.puppetlabs.com/fedora/f20/dependencies/SRPMS
+gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-puppetlabs
+enabled=0
+gpgcheck=1
+
+[puppetlabs-devel-source]
+name=Puppet Labs Devel Fedora 20 - $basearch - Source
+baseurl=http://yum.puppetlabs.com/fedora/f20/devel/SRPMS
+gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-puppetlabs
+enabled=0
+gpgcheck=1
