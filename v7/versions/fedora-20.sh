@@ -13,6 +13,6 @@ REMOTE_PATH=''	# make a $VERSION directory in this dir
 KEYS='puppetlabs'
 REPOS='f20-puppet'
 IMAGES=''
-PACKAGES='vim-enhanced git wget file man tree nmap tcpdump htop lsof telnet mlocate bind-utils koan iftop yum-utils nmap-ncat psmisc bash-completion moreutils'	# list of extra packages to include
+PACKAGES='sudo vim-enhanced git wget file man tree nmap tcpdump htop lsof telnet mlocate bind-utils koan iftop yum-utils nmap-ncat psmisc bash-completion moreutils'	# list of extra packages to include
 make VERSION=$VERSION POSTFIX=$POSTFIX SIZE=$SIZE SERVER=$SERVER REMOTE_PATH=$REMOTE_PATH KEYS="$KEYS" REPOS="$REPOS" IMAGES="$IMAGES" PACKAGES="$PACKAGES" $@
 
