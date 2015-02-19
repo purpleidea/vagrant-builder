@@ -18,10 +18,8 @@
 # NOTE: if you change any of the values in this file (such as SIZE or --install
 # arguments) make won't notice the change, you'll have to manually clean first.
 
-.PHONY: all docker builder convert box local upload clean
+.PHONY: all docker xz index asc builder convert box local upload clean
 .SILENT:
-
-# TODO: build base image for virt-builder from iso instead of using templates
 
 # virt-builder os-version
 VERSION = centos-7.0
@@ -31,6 +29,24 @@ ifeq ($(POSTFIX), )
 else
 	FULLNAME = $(VERSION)-$(POSTFIX)
 endif
+ISO =
+# if a slash exists, then assume an absolute path; TODO: split between abs/rel
+ifeq (,$(findstring $(ISO), /))
+	FULLISO := $(shell echo `pwd`/iso/$(ISO))
+	# TODO: add xdg support
+	# FIXME: when iso in ~/.cache/ qemu shows a permission denied error...
+	#FULLISO := $(shell echo ~/.cache/vagrant-builder/iso/$(ISO))
+endif
+
+ifneq ($(ISO), )
+	# TODO: use a signed index instead (useful for automated environments?)
+	INDEX_PRESENT = $(OUTPUT)/index
+	BUILDER_FLAGS = --fingerprint '' --source $(OUTPUT)/index --no-check-signature --no-cache
+else
+	INDEX_PRESENT =
+	BUILDER_FLAGS =
+endif
+
 BOX = $(FULLNAME).box
 SIZE = 40
 ifeq ($(SIZE), )
@@ -73,6 +89,28 @@ endif
 REPOS_COMMAND = $(REPOS_PRESENT:%=--upload %:/etc/yum.repos.d/)
 
 all: box
+# needed for subscription-manager virt-builder install...
+USERNAME := $(shell source ~/.vagrant-builder/auth.sh && echo "$$USERNAME")
+PASSWORD := $(shell source ~/.vagrant-builder/auth.sh && echo "$$PASSWORD")
+POOLID =
+ifeq ($(POOLID), )
+	ATTACH = --auto
+else
+	# POOLID can be a list of poolid's separated by spaces...
+	ATTACH = $(POOLID)
+endif
+# TODO: alternatively, we could simulate a repo download first, and then copy
+# those repos in with the REPOS variable, but that's too complicated for now!
+# this is a list of elements (space separated)
+RHELREPOS =
+ifneq ($(RHELREPOS), )
+	# TODO: avoid passing in the password where it can be visible...
+	SUBSCRIPTION_COMMAND = --run-command "echo \"USERNAME='$(USERNAME)';PASSWORD='$(PASSWORD)';ATTACH='$(ATTACH)';REPOS='$(RHELREPOS)'\" > /root/subscribe.input.sh" --run files/subscribe.sh
+	SUBSCRIPTION_UNREGISTER = --run-command 'if (test "$(USERNAME)" != "" && test "$(PASSWORD)" != ""); then subscription-manager unregister; fi'
+else
+	SUBSCRIPTION_COMMAND =
+	SUBSCRIPTION_UNREGISTER =
+endif
 
 #
 #	aliases
@@ -81,6 +119,9 @@ docker: $(DOCKER)
 builder: $(OUTPUT)/builder.img
 convert: $(OUTPUT)/box.img
 box: $(OUTPUT)/$(BOX)
+xz: $(OUTPUT)/$(VERSION).xz
+index: $(OUTPUT)/index
+asc: $(OUTPUT)/index.asc
 local: $(OUTPUT)/SHA256SUMS.asc
 
 #
@@ -102,16 +143,51 @@ $(DOCKER): %:
 $(OUTPUT)/docker.tar: $(DOCKER)
 	cd $(PREFIX) && tar -cf $(OUTPUT)/docker.tar -C $(OUTPUT) *$(SUFFIX) || ls *$(SUFFIX) || tar -cf $(OUTPUT)/docker.tar --files-from=/dev/null
 
+$(OUTPUT)/$(VERSION).xz: $(FULLISO)
+	sudo -v	# auth
+	./scripts/virt-install.sh $(VERSION) $(FULLISO) $(OUTPUT)/$(VERSION) || (rm $(OUTPUT)/$(VERSION) && false)
+	virt-sysprep -a $(OUTPUT)/$(VERSION)
+	mv $(OUTPUT)/$(VERSION){,.tmp}
+	virt-sparsify $(OUTPUT)/$(VERSION){.tmp,} && rm $(OUTPUT)/$(VERSION).tmp
+	xz --best --block-size=16777216 $(OUTPUT)/$(VERSION)	# produces .xz
+
+#
+#	plain index
+#
+$(OUTPUT)/index: $(OUTPUT)/$(VERSION).xz
+	# TODO: get heredoc to work...
+	echo -n > $(OUTPUT)/index
+	echo '[$(VERSION)]' >> $(OUTPUT)/index
+	echo 'name=$(VERSION)' >> $(OUTPUT)/index
+	echo '#osinfo=$(VERSION)' >> $(OUTPUT)/index
+	echo 'arch=x86_64' >> $(OUTPUT)/index
+	echo 'file='`python -c "import os.path; print(os.path.relpath('$(OUTPUT)/$(VERSION).xz', '.'))"` >> $(OUTPUT)/index
+	echo 'checksum[sha512]='`sha512sum $(OUTPUT)/$(VERSION).xz | awk '{print $$1}'` >> $(OUTPUT)/index
+	echo 'format=raw' >> $(OUTPUT)/index
+	echo '# hardcoded to 6GiB' >> $(OUTPUT)/index
+	echo 'size=6442450944' >> $(OUTPUT)/index
+	echo 'compressed_size='`stat -c %s $(OUTPUT)/$(VERSION).xz` >> $(OUTPUT)/index
+	echo 'expand=/dev/sda3' >> $(OUTPUT)/index
+	echo 'notes=Made with vagrant-builder by @purpleidea' >> $(OUTPUT)/index
+	#echo 'hidden=true' >> $(OUTPUT)/index
+
+#
+#	signed index
+#
+$(OUTPUT)/index.asc: $(OUTPUT)/index
+	gpg --clearsign --armor $(OUTPUT)/index
+
 #
 #	virt-builder
 #
 # build image with virt-builder
 # NOTE: some of this system prep is based on the vagrant-libvirt scripts
 # TODO: install: ruby ruby-devel make gcc rubygems ?
-$(OUTPUT)/builder.img: files/* $(OUTPUT)/docker.tar $(REPOS_PRESENT) $(KEYS_PRESENT)
+# FIXME: if virt-builder fails during install, there is no unregister done!
+$(OUTPUT)/builder.img: files/* $(OUTPUT)/docker.tar $(REPOS_PRESENT) $(KEYS_PRESENT) $(INDEX_PRESENT)
 	@echo Running virt-builder...
 	[ -d $(OUTPUT) ] || mkdir -p $(OUTPUT)/	# ensure path is present first!
-	virt-builder $(VERSION) $(REPOS_COMMAND) $(KEYS_COMMAND) \
+	virt-builder $(BUILDER_FLAGS) $(VERSION) $(SUBSCRIPTION_COMMAND) $(REPOS_COMMAND) $(KEYS_COMMAND) \
 	--output $(OUTPUT)/builder.img \
 	--format qcow2 \
 	--size $(SIZE)G \
@@ -130,6 +206,7 @@ $(OUTPUT)/builder.img: files/* $(OUTPUT)/docker.tar $(REPOS_PRESENT) $(KEYS_PRES
 	--run files/ssh.sh \
 	--run files/network.sh \
 	--run files/cleanup.sh \
+	$(SUBSCRIPTION_UNREGISTER) \
 	--run-command 'touch /.autorelabel'
 
 	# boot machine once to run the selinux relabelling, see:
