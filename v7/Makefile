@@ -22,7 +22,7 @@
 .SILENT:
 
 # virt-builder os-version
-VERSION = centos-7.0
+VERSION =
 POSTFIX =
 ifeq ($(POSTFIX), )
 	FULLNAME = $(VERSION)
@@ -88,7 +88,6 @@ endif
 # build command line args for virt-builder
 REPOS_COMMAND = $(REPOS_PRESENT:%=--upload %:/etc/yum.repos.d/)
 
-all: box
 # needed for subscription-manager virt-builder install...
 USERNAME := $(shell source ~/.vagrant-builder/auth.sh && echo "$$USERNAME")
 PASSWORD := $(shell source ~/.vagrant-builder/auth.sh && echo "$$PASSWORD")
@@ -112,9 +111,19 @@ else
 	SUBSCRIPTION_UNREGISTER =
 endif
 
+# ensure this is run from a script file and not directly :)
+ifeq ($(VERSION),)
+$(info VERSION not set!)
+all:
+	echo 'Run this Makefile using a script in ./versions/'
+	echo 'Example: ./versions/fedora-21.sh'
+	echo 'Note: doing this from this working directory is important!'
+	false	# cause make to exit now :)
+else
 #
 #	aliases
 #
+all: box
 docker: $(DOCKER)
 builder: $(OUTPUT)/builder.img
 convert: $(OUTPUT)/box.img
@@ -123,6 +132,7 @@ xz: $(OUTPUT)/$(VERSION).xz
 index: $(OUTPUT)/index
 asc: $(OUTPUT)/index.asc
 local: $(OUTPUT)/SHA256SUMS.asc
+endif
 
 #
 #	clean
