@@ -18,6 +18,7 @@
 # NOTE: if you change any of the values in this file (such as SIZE or --install
 # arguments) make won't notice the change, you'll have to manually clean first.
 
+SHELL = /bin/bash
 .PHONY: all docker xz index asc builder convert box local upload clean
 .SILENT:
 
