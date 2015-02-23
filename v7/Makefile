@@ -156,10 +156,10 @@ $(OUTPUT)/docker.tar: $(DOCKER)
 
 $(OUTPUT)/$(VERSION).xz: $(FULLISO)
 	sudo -v	# auth
-	./scripts/virt-install.sh $(VERSION) $(FULLISO) $(OUTPUT)/$(VERSION) || (rm $(OUTPUT)/$(VERSION) && false)
+	./scripts/virt-install.sh $(VERSION) $(FULLISO) $(OUTPUT)/$(VERSION) || (rm -f $(OUTPUT)/$(VERSION) && false)
 	virt-sysprep -a $(OUTPUT)/$(VERSION)
 	mv $(OUTPUT)/$(VERSION){,.tmp}
-	virt-sparsify $(OUTPUT)/$(VERSION){.tmp,} && rm $(OUTPUT)/$(VERSION).tmp
+	virt-sparsify $(OUTPUT)/$(VERSION){.tmp,} && rm -f $(OUTPUT)/$(VERSION).tmp
 	xz --best --block-size=16777216 $(OUTPUT)/$(VERSION)	# produces .xz
 
 #
