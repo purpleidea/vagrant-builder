@@ -60,6 +60,9 @@ base images can be used provided you provide an _ISO_ starting point.
 For more information, start by reading and working through the introductory
 [blog post](https://ttboj.wordpress.com/2014/01/20/building-base-images-for-vagrant-with-a-makefile).
 
+For information on how to use vagrant-builder to build RHEL base images, read:
+[https://ttboj.wordpress.com/2015/02/23/building-rhel-vagrant-boxes-with-vagrant-builder/](https://ttboj.wordpress.com/2015/02/23/building-rhel-vagrant-boxes-with-vagrant-builder/).
+
 ##Setup
 
 ###Installation
