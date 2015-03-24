@@ -19,7 +19,7 @@
 # arguments) make won't notice the change, you'll have to manually clean first.
 
 SHELL = /bin/bash
-.PHONY: all docker xz index asc builder convert box local upload clean
+.PHONY: all xz index asc builder convert box local upload clean
 .SILENT:
 
 # virt-builder os-version
@@ -64,12 +64,8 @@ REPOS =
 # list of extra packages to install
 PACKAGES =
 # list of docker images to pull in
-IMAGES =
-# list of container output paths
-PREFIX = $(OUTPUT)/
-SUFFIX = .docker
+DOCKER =
 # $(VARIABLE:OLD_PREFIX%OLD_SUFFIX=NEW_PREFIX%NEW_SUFFIX)
-DOCKER = $(IMAGES:%=$(PREFIX)%$(SUFFIX))
 # find out which key files actually exist
 KEYS_PATTERN = $(KEYS:%=keys/RPM-GPG-KEY-%)
 ifeq ($(KEYS_PATTERN), )
@@ -125,7 +121,6 @@ else
 #	aliases
 #
 all: box
-docker: $(DOCKER)
 builder: $(OUTPUT)/builder.img
 convert: $(OUTPUT)/box.img
 box: $(OUTPUT)/$(BOX)
@@ -142,17 +137,7 @@ endif
 clean:
 	@echo Running clean...
 	# TODO: technically, the 'true' should check if all the files are rm-ed
-	rm $(DOCKER) $(OUTPUT)/{docker.tar,{builder,box}.img,metadata.json,$(BOX),SHA256SUMS{,.asc}} || true
-
-#
-#	docker
-#
-$(DOCKER): %:
-	# get name of the container by removing prefix/suffix
-	d='$@'; d=$${d#$(PREFIX)}; d=$${d%$(SUFFIX)}; docker pull "$$d" && docker save "$$d" > $@
-
-$(OUTPUT)/docker.tar: $(DOCKER)
-	cd $(PREFIX) && tar -cf $(OUTPUT)/docker.tar -C $(OUTPUT) *$(SUFFIX) || ls *$(SUFFIX) || tar -cf $(OUTPUT)/docker.tar --files-from=/dev/null
+	rm $(OUTPUT)/{{builder,box}.img,metadata.json,$(BOX),SHA256SUMS{,.asc}} || true
 
 $(OUTPUT)/$(VERSION).xz: $(FULLISO)
 	sudo -v	# auth
@@ -195,7 +180,7 @@ $(OUTPUT)/index.asc: $(OUTPUT)/index
 # NOTE: some of this system prep is based on the vagrant-libvirt scripts
 # TODO: install: ruby ruby-devel make gcc rubygems ?
 # FIXME: if virt-builder fails during install, there is no unregister done!
-$(OUTPUT)/builder.img: files/* $(OUTPUT)/docker.tar $(REPOS_PRESENT) $(KEYS_PRESENT) $(INDEX_PRESENT)
+$(OUTPUT)/builder.img: files/* $(REPOS_PRESENT) $(KEYS_PRESENT) $(INDEX_PRESENT)
 	@echo Running virt-builder...
 	[ -d $(OUTPUT) ] || mkdir -p $(OUTPUT)/	# ensure path is present first!
 	virt-builder $(BUILDER_FLAGS) $(VERSION) $(SUBSCRIPTION_COMMAND) $(REPOS_COMMAND) $(KEYS_COMMAND) \
@@ -206,10 +191,10 @@ $(OUTPUT)/builder.img: files/* $(OUTPUT)/docker.tar $(REPOS_PRESENT) $(KEYS_PRES
 	--root-password file:files/password \
 	--run-command 'yum erase -y vim-minimal || true' \
 	--run-command 'yum install -y puppet || true' \
-	--run-command 'yum install -y docker || true' \
+	--upload files/docker.sh:/root/docker.sh \
+	--run-command 'yum install -y docker psmisc || true' \
 	--run-command 'systemctl enable docker || true' \
-	--upload $(OUTPUT)/docker.tar:/root/ \
-	--run-command 'mkdir /root/docker/ && tar -C /root/docker/ -xf /root/docker.tar && rm /root/docker.tar' \
+	--run-command '/root/docker.sh pull $(DOCKER) && rm /root/docker.sh' \
 	--upload files/yum.sh:/root/yum.sh \
 	--run-command '/root/yum.sh install $(PACKAGES) && rm /root/yum.sh' \
 	--run-command 'yum update -y' \
