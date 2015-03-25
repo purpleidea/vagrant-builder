@@ -120,7 +120,7 @@ else
 #
 #	aliases
 #
-all: box
+all: box $(OUTPUT)/vagrant-box-add.sh $(OUTPUT)/vagrant-box-remove.sh
 builder: $(OUTPUT)/builder.img
 convert: $(OUTPUT)/box.img
 box: $(OUTPUT)/$(BOX)
@@ -137,7 +137,7 @@ endif
 clean:
 	@echo Running clean...
 	# TODO: technically, the 'true' should check if all the files are rm-ed
-	rm $(OUTPUT)/{{builder,box}.img,metadata.json,$(BOX),SHA256SUMS{,.asc}} || true
+	rm $(OUTPUT)/{{builder,box}.img,metadata.json,$(BOX),vagrant-box-{add,remove}.sh,SHA256SUMS{,.asc}} || true
 
 $(OUTPUT)/$(VERSION).xz: $(FULLISO)
 	sudo -v	# auth
@@ -238,6 +238,30 @@ $(OUTPUT)/metadata.json:
 $(OUTPUT)/$(BOX): Vagrantfile $(OUTPUT)/metadata.json $(OUTPUT)/box.img
 	@echo Running tar...
 	tar -cvzf $(OUTPUT)/$(BOX) ./Vagrantfile --directory=$(OUTPUT)/ ./metadata.json ./box.img
+
+#
+#	vagrant box add
+#
+$(OUTPUT)/vagrant-box-add.sh:
+	@echo Running vagrant box add templater...
+	[ -d $(OUTPUT) ] || mkdir -p $(OUTPUT)/	# ensure path is present first!
+	echo '#!/bin/bash' > $(OUTPUT)/vagrant-box-add.sh
+	echo 'vagrant box add $(FULLNAME).box --name $(FULLNAME)' >> $(OUTPUT)/vagrant-box-add.sh
+	echo '' >> $(OUTPUT)/vagrant-box-add.sh	# newline
+	chmod u+x $(OUTPUT)/vagrant-box-add.sh
+
+#
+#	vagrant box remove
+#
+$(OUTPUT)/vagrant-box-remove.sh:
+	@echo Running vagrant box remove templater...
+	[ -d $(OUTPUT) ] || mkdir -p $(OUTPUT)/	# ensure path is present first!
+	echo '#!/bin/bash' > $(OUTPUT)/vagrant-box-remove.sh
+	echo 'vagrant box remove $(FULLNAME)' >> $(OUTPUT)/vagrant-box-remove.sh
+	echo 'sudo rm -f /var/lib/libvirt/images/$(FULLNAME)_vagrant_box_image.img' >> $(OUTPUT)/vagrant-box-remove.sh
+	echo 'sudo systemctl reload libvirtd.service' >> $(OUTPUT)/vagrant-box-remove.sh
+	echo '' >> $(OUTPUT)/vagrant-box-remove.sh	# newline
+	chmod u+x $(OUTPUT)/vagrant-box-remove.sh
 
 #
 #	sha256sum
