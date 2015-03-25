@@ -190,6 +190,7 @@ $(OUTPUT)/builder.img: files/* $(REPOS_PRESENT) $(KEYS_PRESENT) $(INDEX_PRESENT)
 	--install rsync,nfs-utils,sudo,openssh-server,openssh-clients,screen,tar \
 	--root-password file:files/password \
 	--run-command 'yum erase -y vim-minimal || true' \
+	--run-command 'yum install -y sudo vim-enhanced || true' \
 	--run-command 'yum install -y puppet || true' \
 	--upload files/docker.sh:/root/docker.sh \
 	--run-command 'yum install -y docker psmisc || true' \
