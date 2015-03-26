@@ -99,13 +99,13 @@ endif
 # those repos in with the REPOS variable, but that's too complicated for now!
 # this is a list of elements (space separated)
 RHELREPOS =
-ifneq ($(RHELREPOS), )
-	# TODO: avoid passing in the password where it can be visible...
-	SUBSCRIPTION_COMMAND = --run-command "echo \"USERNAME='$(USERNAME)';PASSWORD='$(PASSWORD)';ATTACH='$(ATTACH)';REPOS='$(RHELREPOS)'\" > /root/subscribe.input.sh" --run files/subscribe.sh
-	SUBSCRIPTION_UNREGISTER = --run-command 'if (test "$(USERNAME)" != "" && test "$(PASSWORD)" != ""); then subscription-manager unregister; fi'
-else
+ifeq ($(RHELREPOS), )
 	SUBSCRIPTION_COMMAND =
 	SUBSCRIPTION_UNREGISTER =
+else
+	# FIXME: avoid passing in the password where it can be visible...
+	SUBSCRIPTION_COMMAND = --run-command "echo \"USERNAME='$(USERNAME)';PASSWORD='$(PASSWORD)';ATTACH='$(ATTACH)';REPOS='$(RHELREPOS)'\" > /root/subscribe.input.sh" --run files/subscribe.sh
+	SUBSCRIPTION_UNREGISTER = --run-command 'if (test "$(USERNAME)" != "" && test "$(PASSWORD)" != ""); then subscription-manager unregister; fi'
 endif
 
 # ensure this is run from a script file and not directly :)
