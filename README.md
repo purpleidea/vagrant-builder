@@ -6,7 +6,7 @@
 Please see: [DOCUMENTATION.md](DOCUMENTATION.md) or [PDF](https://pdfdoc-purpleidea.rhcloud.com/pdf/https://github.com/purpleidea/vagrant-builder/blob/master/DOCUMENTATION.md).
 
 ## Installation:
-Please read the [Installation instructions](https://github.com/purpleidea/vagrant-builder/blob/master/DOCUMENTATION.md#setup) to get started with Vagrant Builder.
+Please read the [installation instructions](https://github.com/purpleidea/vagrant-builder/blob/master/DOCUMENTATION.md#setup) to get started with Vagrant Builder.
 
 ## Examples:
 Please look in the [examples/](examples/) folder for usage. If none exist, please contribute one!
