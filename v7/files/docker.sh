@@ -21,7 +21,5 @@ if [ "$1" = 'pull' ] && [ "$2" != '' ]; then
 	done
 	# so that virt-builder can exit cleanly
 	killall docker
-else
-	exit 1
 fi
 
