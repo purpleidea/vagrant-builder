@@ -67,19 +67,19 @@ For information on how to use vagrant-builder to build RHEL base images, read:
 
 ###Dependencies
 
-1. In order to build a vagrant box, a virtual machine needs to be installed, started up, modified, then shutdown. To this end, the machine you use *vagrant-builder* on must be a libvirt hypervisor:
+* In order to build a vagrant box, a virtual machine needs to be installed, started up, modified, then shutdown. To this end, the machine you use *vagrant-builder* on must be a libvirt hypervisor:
 
 ```bash
 dnf install virt-install libvirt kvm libguestfs-tools
 ```
 
-2. Install the necessary documentation packages
+* Install the necessary documentation packages
 
 ```bash
 dnf install pandoc texlive
 ```
 
-3. During the virtual machine build using an ISO, the *qemu* user needs access to the ISO. One way to accomplish this is to give this user access to your home directory:
+* During the virtual machine build using an ISO, the *qemu* user needs access to the ISO. One way to accomplish this is to give this user access to your home directory:
 
 ```bash
 $ sudo getfacl /home/james # james is my home directory
@@ -102,7 +102,7 @@ mask::r-x
 other::---
 ```
 
-4. Increase your */tmp* directory to 6 GiB or larger:
+* Increase your */tmp* directory to 6 GiB or larger:
 
 ```bash
 $ df -h /tmp
@@ -118,13 +118,13 @@ tmpfs 8.0G 1.3M 8.0G 1% /tmp
 
 ###Installation
 
-1. Start by cloning the project, and entering the _v_ directory of your choice:
+* Start by cloning the project, and entering the _v_ directory of your choice:
 
 ```bash
 $ git clone --recursive https://github.com/purpleidea/vagrant-builder
 ```
 
-2. Change into the directory of the version you would like to build
+* Change into the directory of the version you would like to build
 
 ```bash
 $ cd vagrant-builder/v7/
