@@ -30,6 +30,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 1. [Overview](#overview)
 2. [Project description - What the project does](#project-description)
 3. [Setup - Getting started with Vagrant Builder](#setup)
+	* [Dependencies](#dependencies)
 	* [Installation](#installation)
 	* [Simple usage](#simple-usage)
 	* [Complex usage](#complex-usage)
@@ -70,13 +71,13 @@ For information on how to use vagrant-builder to build RHEL base images, read:
 * In order to build a vagrant box, a virtual machine needs to be installed, started up, modified, then shutdown. To this end, the machine you use *vagrant-builder* on must be a libvirt hypervisor:
 
 ```bash
-dnf install virt-install libvirt kvm libguestfs-tools
+sudo dnf install virt-install libvirt kvm libguestfs-tools
 ```
 
 * Install the necessary documentation packages
 
 ```bash
-dnf install pandoc texlive
+sudo dnf install pandoc texlive
 ```
 
 * During the virtual machine build using an ISO, the *qemu* user needs access to the ISO. One way to accomplish this is to give this user access to your home directory:
