@@ -46,4 +46,3 @@ cleanup ()
 	subscription-manager unregister
 }
 trap cleanup INT ERR	# TODO: is this sufficient / correct ?
-

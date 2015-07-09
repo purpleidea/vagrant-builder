@@ -18,4 +18,3 @@ PACKAGES='sudo vim-enhanced git wget file man tree nmap tcpdump htop lsof telnet
 POOLID=''
 RHELREPOS='rhel-7-server-rpms rhel-7-server-extras-rpms'
 make VERSION=$VERSION POSTFIX=$POSTFIX ISO=$ISO SERVER=$SERVER REMOTE_PATH=$REMOTE_PATH KEYS="$KEYS" REPOS="$REPOS" DOCKER="$DOCKER" PACKAGES="$PACKAGES" POOLID="$POOLID" RHELREPOS="$RHELREPOS" $@
-

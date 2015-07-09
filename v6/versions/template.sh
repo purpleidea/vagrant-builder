@@ -10,4 +10,3 @@ SERVER='user@host.example.org'	# connect over ssh (add your public key first)
 REMOTE_PATH='public_html/vagrant'	# make a $VERSION directory in this dir
 
 make VERSION=$VERSION SERVER=$SERVER REMOTE_PATH=$REMOTE_PATH $@
-

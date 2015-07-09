@@ -15,4 +15,3 @@ if [ "$1" = 'install' ]; then
 else
 	exit 1
 fi
-

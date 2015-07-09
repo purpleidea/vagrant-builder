@@ -22,4 +22,3 @@ if [ "$1" = 'pull' ] && [ "$2" != '' ]; then
 	# so that virt-builder can exit cleanly
 	killall docker
 fi
-

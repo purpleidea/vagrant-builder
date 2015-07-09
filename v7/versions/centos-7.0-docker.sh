@@ -16,4 +16,3 @@ DOCKER='centos fedora'		# list of docker images to include
 #PACKAGES='golang-github-docker-libcontainer'	# add for F20
 PACKAGES='sudo vim-enhanced git wget file man tree nmap tcpdump htop lsof telnet mlocate bind-utils koan iftop yum-utils nc psmisc bash-completion moreutils'
 make VERSION=$VERSION POSTFIX=$POSTFIX SIZE=$SIZE SERVER=$SERVER REMOTE_PATH=$REMOTE_PATH KEYS="$KEYS" REPOS="$REPOS" DOCKER="$DOCKER" PACKAGES="$PACKAGES" $@
-

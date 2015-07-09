@@ -15,4 +15,3 @@ REPOS='f20-puppet'	# XXX: puppetlabs doesn't have an f21 repo yet...
 DOCKER=''
 PACKAGES='sudo vim-enhanced git wget file man tree nmap tcpdump htop lsof telnet mlocate bind-utils koan iftop yum-utils nmap-ncat psmisc bash-completion moreutils'	# list of extra packages to include
 make VERSION=$VERSION POSTFIX=$POSTFIX SIZE=$SIZE SERVER=$SERVER REMOTE_PATH=$REMOTE_PATH KEYS="$KEYS" REPOS="$REPOS" DOCKER="$DOCKER" PACKAGES="$PACKAGES" $@
-

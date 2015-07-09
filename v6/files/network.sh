@@ -37,4 +37,3 @@ set_sysctl 'net.ipv4.conf.all.rp_filter' 3
 #ONBOOT="yes"
 #NM_CONTROLLED="no"
 #EOF
-

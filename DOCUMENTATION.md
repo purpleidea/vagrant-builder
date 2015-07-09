@@ -285,4 +285,3 @@ Copyright (C) 2012-2013+ James Shubin
 * [github](https://github.com/purpleidea/)
 * [&#64;purpleidea](https://twitter.com/#!/purpleidea)
 * [https://ttboj.wordpress.com/](https://ttboj.wordpress.com/)
-

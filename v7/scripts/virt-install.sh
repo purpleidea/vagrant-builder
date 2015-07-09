@@ -112,4 +112,3 @@ sudo virt-install \
 
 # if the whole script is run as root, then this needs to be $SUDO_USER
 sudo chown $USER $fulloutput	# needed since virt-install needs to run as root...
-

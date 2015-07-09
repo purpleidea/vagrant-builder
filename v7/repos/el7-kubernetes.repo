@@ -4,4 +4,3 @@ baseurl=http://copr-be.cloud.fedoraproject.org/results/eparis/kubernetes-epel-7/
 skip_if_unavailable=True
 gpgcheck=0
 enabled=1
-
