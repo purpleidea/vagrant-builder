@@ -239,7 +239,7 @@ the output of _virt-builder -l_.
 ###Targets
 These are the special Makefile targets used in the project. The following targets are available:
 
-####All
+####all
 ```
 Alias: all
 Target: $(OUTPUT)/vagrant-box-add.sh $(OUTPUT)/vagrant-box-remove.sh
@@ -258,8 +258,8 @@ Dependencies: ISO file the iso/ directory
 ####index
 ```
 Alias: index
-Target: $(OUTPUT)/index 
-Purpose: Created index file used for virt-builder 
+Target: $(OUTPUT)/index
+Purpose: Created index file used for virt-builder
 Dependencies: $(OUTPUT)/$(VERSION).xz
 ```
 
