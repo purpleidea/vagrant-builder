@@ -71,19 +71,13 @@ For information on how to use vagrant-builder to build RHEL base images, read:
 * In order to build a vagrant box, a virtual machine needs to be installed, started up, modified, then shutdown. To this end, the machine you use *vagrant-builder* on must be a libvirt hypervisor:
 
 ```bash
-sudo dnf install virt-install libvirt kvm libguestfs-tools
-```
-
-* Install the necessary documentation packages
-
-```bash
-sudo dnf install pandoc texlive
+$ sudo dnf install virt-install libvirt kvm libguestfs-tools
 ```
 
 * During the virtual machine build using an ISO, the *qemu* user needs access to the ISO. One way to accomplish this is to give this user access to your home directory:
 
 ```bash
-$ sudo getfacl /home/james # james is my home directory
+$ getfacl /home/james # james is my home directory
 # file: james
 # owner: james
 # group: james
@@ -92,7 +86,7 @@ group::---
 other::---
 
 $ sudo setfacl -m u:qemu:r-x /home/james # this is the important line
-$ getfacl james
+$ getfacl /home/james
 # file: james
 # owner: james
 # group: james
@@ -103,18 +97,34 @@ mask::r-x
 other::---
 ```
 
+* Specify subscription-manager credentials if using RHEL:
+NOTE: Unfortunately the password will be displayed on the *virt-builder* command-line. Patches to fix this welcome!
+
+```bash
+$ cat ~/.vagrant-builder/auth.sh
+# these values are used by vagrant-builder
+USERNAME='purpleidea@redhat.com' # replace with your access.redhat.com username
+PASSWORD='hunter2'               # replace with your access.redhat.com password
+```
+
 * Increase your */tmp* directory to 6 GiB or larger:
 
 ```bash
+$ sudo mount -o remount,size=8G /tmp
 $ df -h /tmp
 Filesystem Size Used Avail Use% Mounted on
 tmpfs 1.9G 1.3M 1.9G 1% /tmp
-Let’s increase this a bit:
 
 $ sudo mount -o remount,size=8G /tmp
 $ df -h /tmp
 Filesystem Size Used Avail Use% Mounted on
 tmpfs 8.0G 1.3M 8.0G 1% /tmp
+```
+
+* Install the necessary documentation packages to build the docs:
+
+```bash
+$ sudo dnf install pandoc texlive
 ```
 
 ###Installation
@@ -168,6 +178,7 @@ should be next to the _versions/_ directory. Example:
 ```bash
 $ pwd
 /home/james/code/vagrant-builder/v7
+
 $ tree -L 1
 .
 |-- files
@@ -226,13 +237,79 @@ This is the name for the image. In general it should match the names used in
 the output of _virt-builder -l_.
 
 ###Targets
-These are the special Makefile targets used in the project.
+These are the special Makefile targets used in the project. The following targets are available:
 
 ####All
-Currently undocumented.
+```
+Alias: all
+Target: $(OUTPUT)/vagrant-box-add.sh $(OUTPUT)/vagrant-box-remove.sh
+Purpose: Runs all targets except clean
+Dependencies: none
+```
 
-####Upload
-Currently undocumented.
+####xz
+```
+Alias: xz
+Target: $(OUTPUT)/$(VERSION).xz
+Purpose: Installs KVM VM via virt-install then converts to .xz compressed file
+Dependencies: ISO file the iso/ directory
+```
+
+####index
+```
+Alias: index
+Target: $(OUTPUT)/index 
+Purpose: Created index file used for virt-builder 
+Dependencies: $(OUTPUT)/$(VERSION).xz
+```
+
+####asc
+```
+Alias: asc
+Target: $(OUTPUT)/index.asc
+Purpose: Encrypted index file used for virt-builder
+Dependencies: $(OUTPUT)/index
+```
+
+####builder
+```
+Alias: builder
+Target: $(OUTPUT)/builder.img
+Purpose: Takes the .xz image and makes specific changes to the image
+Dependencies: Index file
+```
+
+####convert
+```
+Alias: convert
+Target: $(OUTPUT)/box.img
+Purpose: Convert image to qcow2
+Dependencies: $(OUTPUT)/builder.img
+```
+
+####local
+```
+Alias: local
+Target: $(OUTPUT)/SHA256SUMS.asc
+Purpose: Encrypted SHA256SUM
+Dependencies: $(OUTPUT)/SHA256SUMS
+```
+
+####upload
+```
+Alias: upload
+Target: upload
+Purpose: Secure copy resultant vagrant box to remote server with SSH keys already established
+Dependencies: $(OUTPUT)/$(BOX) $(OUTPUT)/SHA256SUMS $(OUTPUT)/SHA256SUMS.asc
+```
+
+####clean
+```
+Alias: clean
+Target: clean
+Purpose: Remove files from previous run
+Dependencies: None
+```
 
 ##Examples
 For example configurations, please consult the [examples/](https://github.com/purpleidea/vagrant-builder/tree/master/examples) directory in the git
