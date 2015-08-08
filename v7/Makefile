@@ -209,7 +209,7 @@ $(OUTPUT)/builder.img: files/* $(REPOS_PRESENT) $(KEYS_PRESENT) $(INDEX_PRESENT)
 	# boot machine once to run the selinux relabelling, see:
 	# https://www.redhat.com/archives/libguestfs/2014-January/msg00183.html
 	# https://github.com/libguestfs/libguestfs/commit/20a4bfde9628cfeb8bea441cab7dcc94843b34e3
-	qemu-system-x86_64 -machine accel=kvm:tcg -cpu host -m 512 -drive file=$(OUTPUT)/builder.img,format=qcow2,if=virtio -no-reboot -serial stdio -nographic || (rm $(OUTPUT)/builder.img; false)
+	qemu-system-x86_64 -machine accel=kvm:tcg -cpu host -m 512 -drive file=$(OUTPUT)/builder.img,format=qcow2,if=virtio -no-reboot -serial stdio -nographic -nodefaults || (rm $(OUTPUT)/builder.img; false)
 	reset	# TODO: qemu-system-x86_64 borks the terminal :(
 
 #
