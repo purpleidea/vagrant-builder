@@ -258,7 +258,9 @@ $(OUTPUT)/vagrant-box-remove.sh:
 	[ -d $(OUTPUT) ] || mkdir -p $(OUTPUT)/	# ensure path is present first!
 	echo '#!/bin/bash' > $(OUTPUT)/vagrant-box-remove.sh
 	echo 'vagrant box remove $(FULLNAME)' >> $(OUTPUT)/vagrant-box-remove.sh
+	echo '# the backing file has one of these two names...' >> $(OUTPUT)/vagrant-box-remove.sh
 	echo 'sudo rm -f /var/lib/libvirt/images/$(FULLNAME)_vagrant_box_image.img' >> $(OUTPUT)/vagrant-box-remove.sh
+	echo 'sudo rm -f /var/lib/libvirt/images/$(FULLNAME)_vagrant_box_image_0.img' >> $(OUTPUT)/vagrant-box-remove.sh
 	echo 'sudo systemctl reload libvirtd.service' >> $(OUTPUT)/vagrant-box-remove.sh
 	echo '' >> $(OUTPUT)/vagrant-box-remove.sh	# newline
 	chmod u+x $(OUTPUT)/vagrant-box-remove.sh
