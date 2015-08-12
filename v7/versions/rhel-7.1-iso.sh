@@ -8,6 +8,7 @@
 VERSION='rhel-7.1'
 POSTFIX='iso'
 ISO='rhel-server-7.1-x86_64-dvd.iso'
+SIZE='40'			# disk size of image
 SERVER=''
 REMOTE_PATH=''	# make a $VERSION directory in this dir
 KEYS='EPEL-7 puppetlabs'	# add extra keys to the base image
