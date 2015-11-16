@@ -1,0 +1,3 @@
+Add any yum .repo files in here that you want to pull into your base image...
+Include them using the name of the repo (omitting the .repo) in the REPOS var.
+Keep in mind that if you pick the name of an existing repo, it will collide.
