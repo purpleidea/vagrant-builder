@@ -28,7 +28,7 @@ if [ $# -ne 3 ]; then
 	exit 1
 fi
 
-output="$1" # eg: rhel-7.0
+output="$1" # eg: debian-8
 iso="$2"
 fulloutput="$3"
 

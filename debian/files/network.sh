@@ -4,6 +4,7 @@
 systemctl disable firewalld
 # Enable sshd
 systemctl enable sshd
+dpkg-reconfigure openssh-server
 
 # Networking setup...
 rm -rf /var/lib/dhclient/*	# remove any old leases that could be around...

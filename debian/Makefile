@@ -91,7 +91,7 @@ ifeq ($(VERSION),)
 $(info VERSION not set!)
 all:
 	echo 'Run this Makefile using a script in ./versions/'
-	echo 'Example: ./versions/fedora-21.sh'
+	echo 'Example: ./versions/debian-8.sh'
 	echo 'Note: doing this from this working directory is important!'
 	false	# cause make to exit now :)
 else
@@ -156,8 +156,6 @@ $(OUTPUT)/index.asc: $(OUTPUT)/index
 #
 # build image with virt-builder
 # NOTE: some of this system prep is based on the vagrant-libvirt scripts
-# TODO: install: ruby ruby-devel make gcc rubygems ?
-# FIXME: if virt-builder fails during install, there is no unregister done!
 $(OUTPUT)/builder.img: files/* $(REPOS_PRESENT) $(KEYS_PRESENT) $(INDEX_PRESENT)
 	@echo Running virt-builder...
 	[ -d $(OUTPUT) ] || mkdir -p $(OUTPUT)/	# ensure path is present first!
