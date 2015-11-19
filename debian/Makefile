@@ -167,6 +167,8 @@ $(OUTPUT)/builder.img: files/* $(REPOS_PRESENT) $(KEYS_PRESENT) $(INDEX_PRESENT)
 	--root-password file:files/password \
 	--run-command 'apt-get install -y sudo vim-nox || true' \
 	--run-command 'apt-get install -y puppet || true' \
+	--upload files/apt.sh:/root/apt.sh \
+	--run-command '/root/apt.sh install $(PACKAGES) && rm /root/apt.sh' \
 	--run-command 'apt-get update && apt-get -y upgrade' \
 	--run files/user.sh \
 	--run files/ssh.sh \
