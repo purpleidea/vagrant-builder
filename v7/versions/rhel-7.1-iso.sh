@@ -2,7 +2,7 @@
 
 # to use this script, from its parent dir, run: ./versions/<script>.sh <target>
 # you'll want to edit the below bash variables to match your use cases :)
-# eg: ./versions/rhel-7.0.sh upload
+# eg: ./versions/rhel-7.1.sh upload
 # to make your own base image and upload it to your own server somewhere.
 
 VERSION='rhel-7.1'
