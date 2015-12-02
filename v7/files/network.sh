@@ -28,4 +28,10 @@ set_sysctl 'net.ipv4.conf.all.arp_announce' 2
 set_sysctl 'net.ipv4.conf.all.rp_filter' 3
 
 # Interface eth0 should get IP address via dhcp.
-# FIXME
+cat > /etc/sysconfig/network-scripts/ifcfg-eth0 << EOF
+DEVICE="eth0"
+BOOTPROTO="dhcp"
+ONBOOT="yes"
+NM_CONTROLLED="no"
+TYPE="Ethernet"
+EOF
