@@ -159,7 +159,7 @@ $(OUTPUT)/index: $(OUTPUT)/$(VERSION).xz
 	echo 'arch=x86_64' >> $(OUTPUT)/index
 	echo 'file='`python -c "import os.path; print(os.path.relpath('$(OUTPUT)/$(VERSION).xz', '.'))"` >> $(OUTPUT)/index
 	echo 'checksum[sha512]='`sha512sum $(OUTPUT)/$(VERSION).xz | awk '{print $$1}'` >> $(OUTPUT)/index
-	echo 'format=raw' >> $(OUTPUT)/index
+	echo 'format=qcow2' >> $(OUTPUT)/index
 	echo '# hardcoded to 6GiB' >> $(OUTPUT)/index
 	echo 'size=6442450944' >> $(OUTPUT)/index
 	echo 'compressed_size='`stat -c %s $(OUTPUT)/$(VERSION).xz` >> $(OUTPUT)/index

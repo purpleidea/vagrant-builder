@@ -104,7 +104,7 @@ sudo virt-install \
 	--os-type=linux --os-variant=rhel$major \
 	--initrd-inject=$ks \
 	--extra-args="ks=file:/`basename $ks` console=tty0 console=ttyS0,115200" \
-	--disk "$fulloutput,size=6" \
+	--disk "$fulloutput,size=6,format=qcow2" \
 	--serial pty \
 	--location="$iso" \
 	--nographics \
